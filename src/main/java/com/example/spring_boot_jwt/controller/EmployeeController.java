@@ -14,6 +14,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -54,16 +56,20 @@ public class EmployeeController {
 
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody EmployeeEntity userEntity) {
-        List<EmployeeEntity> employee = userService.getUserDetailsNameAndEmail(userEntity.getUserName(), userEntity.getEmail());
-        if (employee.size() > 0) {
-            return new ResponseEntity<>("User Name or email Already Exists!!", HttpStatus.BAD_REQUEST);
-        }
-        String msg = userService.saveUser(userEntity);
-        if (msg.equalsIgnoreCase("success")) {
-            return new ResponseEntity<>("User Registered SuccessFully!", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Failed!", HttpStatus.BAD_REQUEST);
+        if (validateEmail(userEntity.getEmail()) && checkUserName(userEntity.getUserName())) {
+            List<EmployeeEntity> employee = userService.getUserDetailsNameAndEmail(userEntity.getUserName(), userEntity.getEmail());
+            if (employee.size() > 0) {
+                return new ResponseEntity<>("User Name or email Already Exists!!", HttpStatus.BAD_REQUEST);
+            }
+            String msg = userService.saveUser(userEntity);
+            if (msg.equalsIgnoreCase("success")) {
+                return new ResponseEntity<>("User Registered SuccessFully!", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Failed!", HttpStatus.BAD_REQUEST);
 
+            }
+        } else {
+            return new ResponseEntity<>("Invalid Email!", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -87,5 +93,21 @@ public class EmployeeController {
         Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
         String username = claims.get("username").toString();
         return userService.changePassword(username, changePasswordDTO);
+    }
+
+    public static boolean validateEmail(String email) {
+        String regex = "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(email);
+        System.out.println(matcher.matches());
+        return matcher.matches();
+    }
+
+    public static boolean checkUserName(String name){
+        String regex = "^[a-zA-Z]+$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(name);
+        System.out.println(matcher.matches());
+        return matcher.matches();
     }
 }
