@@ -56,7 +56,11 @@ public class EmployeeController {
 
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody EmployeeEntity userEntity) {
-        if (validateEmail(userEntity.getEmail()) && checkUserName(userEntity.getUserName())) {
+        if (validateEmail(userEntity.getEmail())) {
+            return new ResponseEntity<>("Invalid Email!", HttpStatus.BAD_REQUEST);
+        } else if (checkUserName(userEntity.getUserName())) {
+            return new ResponseEntity<>("Invalid User Name!", HttpStatus.BAD_REQUEST);
+        } else {
             List<EmployeeEntity> employee = userService.getUserDetailsNameAndEmail(userEntity.getUserName(), userEntity.getEmail());
             if (employee.size() > 0) {
                 return new ResponseEntity<>("User Name or email Already Exists!!", HttpStatus.BAD_REQUEST);
@@ -68,8 +72,6 @@ public class EmployeeController {
                 return new ResponseEntity<>("Failed!", HttpStatus.BAD_REQUEST);
 
             }
-        } else {
-            return new ResponseEntity<>("Invalid Email!", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -103,7 +105,7 @@ public class EmployeeController {
         return matcher.matches();
     }
 
-    public static boolean checkUserName(String name){
+    public static boolean checkUserName(String name) {
         String regex = "^[a-zA-Z]+$";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(name);
