@@ -56,9 +56,9 @@ public class EmployeeController {
 
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody EmployeeEntity userEntity) {
-        if (validateEmail(userEntity.getEmail())) {
+        if (!validateEmail(userEntity.getEmail())) {
             return new ResponseEntity<>("Invalid Email!", HttpStatus.BAD_REQUEST);
-        } else if (checkUserName(userEntity.getUserName())) {
+        } else if (!checkUserName(userEntity.getUserName())) {
             return new ResponseEntity<>("Invalid User Name!", HttpStatus.BAD_REQUEST);
         } else {
             List<EmployeeEntity> employee = userService.getUserDetailsNameAndEmail(userEntity.getUserName(), userEntity.getEmail());
@@ -98,8 +98,9 @@ public class EmployeeController {
     }
 
     public static boolean validateEmail(String email) {
-        String regex = "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$";
-        Pattern pattern = Pattern.compile(regex);
+       // String regex = "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$";
+        //Pattern pattern = Pattern.compile(regex);
+        Pattern pattern = Pattern.compile("\\b[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}\\b");
         Matcher matcher = pattern.matcher(email);
         System.out.println(matcher.matches());
         return matcher.matches();
