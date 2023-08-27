@@ -2,6 +2,7 @@ package com.example.spring_boot_jwt.controller;
 
 import com.example.spring_boot_jwt.dto.ChangePasswordDTO;
 import com.example.spring_boot_jwt.dto.LoginDTO;
+import com.example.spring_boot_jwt.dto.ResponseDTO;
 import com.example.spring_boot_jwt.entity.EmployeeEntity;
 import com.example.spring_boot_jwt.repository.EmployeeRepository;
 import com.example.spring_boot_jwt.security.JWTUtility;
@@ -56,18 +57,23 @@ public class EmployeeController {
 
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody EmployeeEntity userEntity) {
+        ResponseDTO response = new ResponseDTO();
         if (!validateEmail(userEntity.getEmail())) {
-            return new ResponseEntity<>("Invalid Email!", HttpStatus.BAD_REQUEST);
+            response.setMessage("Invalid Email!");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } else if (!checkUserName(userEntity.getUserName())) {
-            return new ResponseEntity<>("Invalid User Name!", HttpStatus.BAD_REQUEST);
+            response.setMessage("Invalid User Name!");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } else {
             List<EmployeeEntity> employee = userService.getUserDetailsNameAndEmail(userEntity.getUserName(), userEntity.getEmail());
             if (employee.size() > 0) {
-                return new ResponseEntity<>("User Name or email Already Exists!!", HttpStatus.BAD_REQUEST);
+                response.setMessage("User Name or email Already Exists!!");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
             String msg = userService.saveUser(userEntity);
             if (msg.equalsIgnoreCase("success")) {
-                return new ResponseEntity<>("User Registered SuccessFully!", HttpStatus.OK);
+                response.setMessage("User Registered Successfully!");
+                return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>("Failed!", HttpStatus.BAD_REQUEST);
 
@@ -77,7 +83,7 @@ public class EmployeeController {
 
     @GetMapping("/getAllUser")
     public ResponseEntity<Object> getAllUser(@RequestHeader("Authorization") String bearerToken) {
-        System.out.println("hello");
+        ResponseDTO response = new ResponseDTO();
         bearerToken = bearerToken.substring(7, bearerToken.length());
         Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
         String username = claims.get("username").toString();
@@ -85,7 +91,8 @@ public class EmployeeController {
         if (employee != null) {
             return new ResponseEntity<>(userService.getAllUser(), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("", HttpStatus.BAD_REQUEST);
+            response.setMessage("Invalid Token!");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
