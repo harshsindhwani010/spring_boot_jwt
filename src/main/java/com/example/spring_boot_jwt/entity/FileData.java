@@ -1,9 +1,6 @@
 package com.example.spring_boot_jwt.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,6 +12,8 @@ import javax.persistence.Id;
 @NoArgsConstructor
 @ToString
 @Data
+@Getter
+@Setter
 public class FileData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

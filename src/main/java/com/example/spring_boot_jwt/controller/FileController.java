@@ -24,10 +24,8 @@ public class FileController {
 
     @Value("${file.upload-dir}")
     private String uploadDir;
-
     @Autowired
     FileServices fileService;
-
 
     @GetMapping(value = "/edit")
     public String editForm(Model model) {
