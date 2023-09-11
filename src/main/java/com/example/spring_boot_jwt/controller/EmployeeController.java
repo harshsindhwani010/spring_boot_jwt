@@ -85,12 +85,18 @@ public class EmployeeController {
     public ResponseEntity<Object> getAllUser(@RequestHeader("Authorization") String bearerToken) {
         ResponseDTO response = new ResponseDTO();
         bearerToken = bearerToken.substring(7, bearerToken.length());
-        Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
-        String username = claims.get("username").toString();
-        EmployeeEntity employee = userService.getUserDetails(username);
-        if (employee != null) {
-            return new ResponseEntity<>(userService.getAllUser(), HttpStatus.OK);
-        } else {
+        boolean validity = jwtUtility.validateJwtToken(bearerToken);
+        if(validity) {
+            Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
+            String username = claims.get("username").toString();
+            EmployeeEntity employee = userService.getUserDetails(username);
+            if (employee != null) {
+                return new ResponseEntity<>(userService.getAllUser(), HttpStatus.OK);
+            } else {
+                response.setMessage("Invalid Token!");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+        }else {
             response.setMessage("Invalid Token!");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
